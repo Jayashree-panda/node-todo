@@ -10,15 +10,6 @@ app.use(expressValidator())
 var mongoose=require('mongoose')
 
 mongoose.connect("mongodb://localhost:27017/user", { useNewUrlParser: true })
-
-
-var todoSchema=new mongoose.Schema({
-	name:String,
-	user:{type:mongoose.Schema.Types.ObjectId, ref:myUser}
-})
-
-var todo=mongoose.model('Todo',todoSchema)
-
 var userSchema=new mongoose.Schema({
 	_id:mongoose.Schema.Types.ObjectId,
 	firstname:String,
@@ -27,14 +18,24 @@ var userSchema=new mongoose.Schema({
 	password:String,
 	todo:[{type:mongoose.Schema.Types.ObjectId, ref:todo}]
 })
+var myUser=mongoose.model('myUser',userSchema)
+
+var todoSchema=new mongoose.Schema({
+	name:String,
+	user:{type:mongoose.Schema.Types.ObjectId, ref:myUser}
+})
+
+var todo=mongoose.model('Todo',todoSchema)
 
 
-var myUser=mongoose.model('myuser',userSchema)
+
+
+
 
 
 
 app.post('/registration',(req,res)=>{
-	console.log("input submitted")
+	
 	var firstname=req.body.firstname;
 	var lastname=req.body.lastname;
 	var username=req.body.username;
@@ -52,7 +53,7 @@ app.post('/registration',(req,res)=>{
 		}
 		else
 		console.log("yes")*/
-
+		console.log("input submitted")
 		var newUser=new myUser()
 
 		bcrypt.hash(password,saltRounds,(err,hash)=>{//hash is the hashed password generated
@@ -65,15 +66,26 @@ app.post('/registration',(req,res)=>{
 		newUser.lastname=lastname;
 		newUser.username=username;
 		newUser._id= new mongoose.Types.ObjectId()
-		myUser.create(newUser,(err,myUser)=>{
+		newUser.save((err,myuser)=>{
+			if(err)
+			{
+				console.log(err);
+			}
+			else{
+
+				res.redirect('/login.ejs');
+			}
+		})
+		/*myUser.create(newUser,(err,myUser)=>{
 		if(err)
 			console.log(err)
 		else
 			console.log("inserted"+newUser)
-		})
+			res.redirect('/login.ejs')
+		})*/
 	
 	})
-		res.redirect('/login.ejs')
+		
 })
 	
 	/*{
@@ -123,7 +135,7 @@ app.post('/login-page',(req,res)=>{
 		}
 		else{
 			console.log("invalid password")
-			res.redirect('login.ejs')
+			res.redirect('/login.ejs')
 		}
 	})
 	})
@@ -141,8 +153,8 @@ app.post('/newtodo',(req,res)=>
 {
 	console.log("input submitted")
 	var newTodo=new todo({//creating object of todo model..or creating the document of collection
-		name:req.body.item,//storing the item received in name
-		user:user._id
+		name:req.body.item//storing the item received in name
+		
 	})
 	todo.create(newTodo,function(err,todo){//inserting into database 
 		if(err)
