@@ -9,7 +9,7 @@ app.use(bodyParser.urlencoded({extended:true}))
 app.use(expressValidator())
 var mongoose=require('mongoose')
 
-mongoose.connect("mongodb://localhost:27017/user", { useNewUrlParser: true })
+mongoose.connect("mongodb://megha2:megha123@ds153494.mlab.com:53494/todo", { useNewUrlParser: true })
 var userSchema=new mongoose.Schema({
 	_id:mongoose.Schema.Types.ObjectId,
 	firstname:String,
